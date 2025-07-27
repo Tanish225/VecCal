@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VecCal - Vector Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    label, select, input, button {
+      display: block;
+      width: 100%;
+      margin-top: 15px;
+      font-size: 1rem;
+    }
+    button {
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 10px;
+      background: #e6ffe6;
+      border: 1px solid #008000;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>VecCal</h1>
+  <p>Calculate Gradient, Divergence, or Curl</p>
+
+  <label for="operation">Operation:</label>
+  <select id="operation">
+    <option value="">Select</option>
+    <option value="gradient">Gradient</option>
+    <option value="divergence">Divergence</option>
+    <option value="curl">Curl</option>
+  </select>
+
+  <label for="expression">Expression:</label>
+  <input type="text" id="expression" placeholder="e.g. x**2*y + y**2*z + z**2*x or (x*y, y*z, z*x)" />
+
+  <button onclick="calculate()">Calculate</button>
+
+  <div id="result"></div>
+
+  <script>
+    function calculate() {
+      const operation = document.getElementById("operation").value;
+      const expression = document.getElementById("expression").value;
+
+      if (!operation || !expression) {
+        document.getElementById("result").innerText = "Please select an operation and enter a valid expression.";
+        return;
+      }
+
+      fetch("http://localhost:5050/calculate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          operation: operation,
+          expression: expression
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result) {
+          document.getElementById("result").innerText = `Result: ${data.result}`;
+        } else if (data.error) {
+          document.getElementById("result").innerText = `Error: ${data.error}`;
+        } else {
+          document.getElementById("result").innerText = `Unexpected response.`;
+        }
+      })
+      .catch(error => {
+        document.getElementById("result").innerText = `Request failed: ${error}`;
+      });
+    }
+  </script>
+
+</body>
+</html>
